@@ -126,6 +126,27 @@ var scrollVis = function () {
         .attr("width", x.bandwidth())
         .attr("height", 0);
 
+    g.selectAll(".cutoff.outline")
+      .data(barData)
+      .enter().append("rect")
+        .attr("class", function(d){ return "cutoff outline b" + d.bin})
+        .attr("x", function(d) { return x(d.bin); })
+        .attr("y", function(d) { return y(threshold); })
+        .attr("width", x.bandwidth())
+        .attr("height", 0)
+        .style("opacity",0)
+
+    g.selectAll(".cutoff.solid")
+      .data(barData)
+      .enter().append("rect")
+        .attr("class", function(d){ return "cutoff solid b" + d.bin})
+        .attr("x", function(d) { return x(d.bin); })
+        .attr("y", function(d) { return y(threshold); })
+        .attr("width", x.bandwidth())
+        .attr("height", 0)
+        .style("opacity",0)
+
+
 
     g.append("g")
       .attr("class", "axis dotAxis")
@@ -173,9 +194,12 @@ var slider = g
     .call(d3.drag()
         .on("start.interrupt", function() { slider.interrupt(); })
         .on("start drag", function(d) {
+          var val = dotY.invert(d3.event.y);
+          if(val < dotMin){ val = dotMin}
+          if(val > dotMax){ val = dotMax }
           d3.select(".dot.b" + d.bin)
-            .attr("cy", dotY(dotY.invert(d3.event.y)))
-          updateBar(d.bin, dotY.invert(d3.event.y));
+            .attr("cy", dotY(val))
+          updateBar(d.bin, val);
         }));
 
 
@@ -232,12 +256,11 @@ var slider = g
     activateFunctions[2] = function(){ noiseModelOne(barData) };
     activateFunctions[3] = function(){ increaseModelOne(barData) };
     activateFunctions[4] = function(){ baseModelTwo(barData) };
-    activateFunctions[5] = function(){ noiseModelTwo(barData) };
-    activateFunctions[6] = function(){ recaptureOne(barData) };
-    activateFunctions[7] = function(){ recaptureTwo(barData) };
-    activateFunctions[8] = function(){ recaptureThree(barData) };
-    activateFunctions[9] = function(){ modelThree(barData) };
-    activateFunctions[10] = function(){ modelThreeRecapture(barData) };
+    activateFunctions[5] = function(){ recaptureOne(barData) };
+    activateFunctions[6] = function(){ recaptureTwo(barData) };
+    activateFunctions[7] = function(){ recaptureThree(barData) };
+    activateFunctions[8] = function(){ modelThree(barData) };
+    activateFunctions[9] = function(){ modelThreeRecapture(barData) };
   };
 
   /**
@@ -341,13 +364,32 @@ var slider = g
 
   }
 
-  function noiseModelTwo(barData){
-
-
-
-  }
   function recaptureOne(barData){
-
+    d3.selectAll(".cutoff")
+      .attr("y", function(d){
+        var rate = getRate(d.bin)
+        if(d.wealth * rate > threshold){
+          return y(d.wealth*rate)
+        }else{
+          return y(threshold)
+        }
+      })
+      .attr("height", function(d){
+        var rate = getRate(d.bin)
+        if(d.wealth * rate > threshold){
+          return barsHeight - y(d.wealth*rate - threshold)
+        }else{
+          return 0
+        }
+      })
+      .style("opacity", function(d){
+        var rate = getRate(d.bin)
+        if(d.wealth * rate > threshold){
+          return 1
+        }else{
+          return 0
+        }
+      })
 
 
   }

@@ -159,8 +159,8 @@ p{
 
 
 .dot{
-  fill: #fdbf11;
-  stroke: #ca5800;
+  fill: #af206b;
+  stroke: #eb098a;
 }
 
 .track,
@@ -176,8 +176,8 @@ p{
 }
 
 .track-inset {
-  stroke: #ddd;
-  stroke-width: 8px;
+  stroke: #d2d2d2;
+  stroke-width: 10px;
 }
 
 .track-overlay {
