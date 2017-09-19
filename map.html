@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<body></body>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/topojson.v2.min.js"></script>
+<script src="js/globals.js"></script>
+<script>
+
+var width = 600;
+var height = 720;
+
+var svg = d3.select("body").append("svg")
+ .attr("width", width)
+ .attr("height", height);
+
+  
+// d3.json("data/topojson/fl_tract_map.json", function (error, data){
+//   var path = d3.geoPath()
+//   svg.append("g")
+//     .attr("class", "dists")
+//     .selectAll("path")
+//     .data(topojson.feature(data, data.objects.fl_tract_map).features)
+//     .enter().append("path")
+//     .attr("fill", function(d) { return mapColor(d.properties.poverty) })
+//     .attr("stroke","none")
+//     .attr("d", path)
+// });
+
+// d3.json("data/topojson/fl_dist_map.json", function (error, data){
+//   var path = d3.geoPath()
+//   svg.append("g")
+//     .attr("class", "dists")
+//     .selectAll("path")
+//     .data(topojson.feature(data, data.objects.fl_dist_map).features)
+//     .enter().append("path")
+//     .attr("fill", function(d) { return mapColor(d.properties.poverty) })
+//     .attr("stroke","none")
+//     .attr("d", path)
+// });
+
+// d3.json("data/topojson/ny_tract_map.json", function (error, data){
+//   var path = d3.geoPath()
+//   svg.append("g")
+//     .attr("class", "dists")
+//     .selectAll("path")
+//     .data(topojson.feature(data, data.objects.ny_tract_map).features)
+//     .enter().append("path")
+//     .attr("fill", function(d) { return mapColor(d.properties.poverty) })
+//     .attr("stroke","none")
+//     .attr("d", path)
+// });
+
+d3.json("data/topojson/ny_dist_map.json", function (error, data){
+  var path = d3.geoPath()
+  svg.append("g")
+    .attr("class", "dists")
+    .selectAll("path")
+    .data(topojson.feature(data, data.objects.ny_dist_map).features)
+    .enter().append("path")
+    .attr("fill", function(d) { return mapColor(d.properties.poverty) })
+    .attr("stroke","none")
+    .attr("d", path)
+});
+</script>

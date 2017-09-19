@@ -1,0 +1,60 @@
+var IS_SHORT = function(){
+  return (d3.select("#isShort").style("display") == "block")
+}
+var IS_PHONE = function(){
+  return (d3.select("#isPhone").style("display") == "block")
+}
+var IS_MOBILE = function(){
+  return (d3.select("#isMobile").style("display") == "block")
+}
+var SECTION_INDEX = function(){
+  return d3.select("#sectionIndex").attr("data-index")
+}
+
+var IS_IE = false;
+function getInternetExplorerVersion()
+{
+  var rv = -1;
+  if (navigator.appName == 'Microsoft Internet Explorer')
+  {
+    var ua = navigator.userAgent;
+    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null)
+      rv = parseFloat( RegExp.$1 );
+  }
+  else if (navigator.appName == 'Netscape')
+  {
+    var ua = navigator.userAgent;
+    var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null)
+      rv = parseFloat( RegExp.$1 );
+  }
+  return rv;
+}
+
+var PHONE_VIS_WIDTH = 230;
+var PHONE_VIS_HEIGHT = 400;
+var SHORT_VIS_WIDTH = 600;
+var SHORT_VIS_HEIGHT = 480;
+var SHORT_SCATTER_WIDTH = 480;
+var PHONE_SCATTER_WIDTH = 235
+var VIS_WIDTH = 600;
+var VIS_HEIGHT = 680;
+
+
+var MARGIN = { top: 60, left: 120, bottom: 104, right: 20 };
+var PHONE_MARGIN = { top: 100, left: 30, bottom: 30, right: 30 };
+
+
+var dotMargin = {top: 40, bottom: 20}
+
+
+var margin = ( IS_PHONE() ) ? PHONE_MARGIN : MARGIN;
+
+var DOLLARS = d3.format("$,.0f")
+var RATIOS = d3.format(".2f")
+
+var dotMin = .8;
+var dotMax = 1.2;
+var thresholdMin = 5000;
+var thresholdMax = 20000;
