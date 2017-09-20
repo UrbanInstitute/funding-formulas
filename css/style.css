@@ -134,6 +134,9 @@ p{
   stroke: #666;
   shape-rendering: crispEdges;
 }
+.axis path{
+  display: none;
+}
 .tick text{
   font-size: 12px;
   font-family: "Lato";
@@ -147,6 +150,22 @@ p{
   fill: #062635;
   stroke: #062635;
   stroke-width: 1px;
+}
+.cutoff.blank{
+  fill: #fff;
+  stroke: #fff;
+  stroke-width: 2px;
+}
+.cutoff.solid{
+  fill: #1696d2;
+  stroke: #1696d2;
+  stroke-width: 2px;
+}
+.cutoff.outline{
+  fill: #ececec;
+  stroke: #d2d2d2;
+  stroke-width: 2px;
+  stroke-dasharray: 12,6;
 }
 .threshold{
   stroke-dasharray: 5,5;
@@ -170,8 +189,8 @@ p{
 }
 
 .track {
-  stroke: #000;
-  stroke-opacity: 0.3;
+  stroke: #d2d2d2;
+  stroke-opacity: 1;
   stroke-width: 10px;
 }
 

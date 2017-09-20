@@ -46,7 +46,7 @@ var MARGIN = { top: 60, left: 120, bottom: 104, right: 20 };
 var PHONE_MARGIN = { top: 100, left: 30, bottom: 30, right: 30 };
 
 
-var dotMargin = {top: 40, bottom: 20}
+var dotMargin = {top: 80, bottom: 20}
 
 
 var margin = ( IS_PHONE() ) ? PHONE_MARGIN : MARGIN;
@@ -56,5 +56,6 @@ var RATIOS = d3.format(".2f")
 
 var dotMin = .8;
 var dotMax = 1.2;
-var thresholdMin = 5000;
-var thresholdMax = 20000;
+
+var thresholdSmall = 5000;
+var thresholdLarge = 10000;
