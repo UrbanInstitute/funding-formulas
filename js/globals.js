@@ -41,6 +41,8 @@ var PHONE_SCATTER_WIDTH = 235
 var VIS_WIDTH = 600;
 var VIS_HEIGHT = 680;
 
+var DURATION = 800;
+
 
 var MARGIN = { top: 60, left: 120, bottom: 104, right: 20 };
 var PHONE_MARGIN = { top: 100, left: 30, bottom: 30, right: 30 };
@@ -57,5 +59,5 @@ var RATIOS = d3.format(".2f")
 var dotMin = .8;
 var dotMax = 1.2;
 
-var thresholdSmall = 5000;
+var thresholdSmall = 6000;
 var thresholdLarge = 10000;

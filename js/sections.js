@@ -319,6 +319,7 @@ var slider = g
   function setThreshold(val){
     d3.select(".threshold")
       .transition()
+      .duration(DURATION)
       .attr("y1", y(val))
       .attr("y2", y(val))
   }
@@ -388,8 +389,49 @@ var slider = g
       return ra;
     }
   }
+  function updateRecaptureAmount(ra1, ra2){
+    var heights = []
+    d3.selectAll(".cutoff.solid.visible")
+      .each(function(d,i){
+        heights.push(parseFloat(d3.select(this).attr("height")))
+      })
+
+    d3.selectAll(".cutoff.solid.visible")
+      .transition()
+      .duration(DURATION)
+      .attr("height", function(d,i){
+        return  heights[i] * (ra2/ra1)
+      })
+      .attr("y", function(d,i){
+        return parseFloat(d3.select(this).attr("y")) +  ( parseFloat(d3.select(".recaptureContainer").attr("height")) - heights[i] * (ra2/ra1))
+      })
+  }
+  function calcRecaptureAmount(threshold, wealthVar){
+    var recaptureAmount = 0
+    var data = d3.selectAll(".dot")
+      .each(function(d){
+        if(d[wealthVar] > threshold){
+          recaptureAmount += d[wealthVar] - threshold;
+        }
+        // console.log(d[wealthVar])
+      })
+      return recaptureAmount;
+  }
+  function getNewThreshold(ra1, ra2, oldThreshold, wealthVar){
+    var getNewThreshold = oldThreshold;
+    calcRecaptureAmount(oldThreshold, wealthVar)
+    if(ra2 < ra1){
+      for(var t = oldThreshold; t > 0; t -= 1){
+        if(Math.abs(calcRecaptureAmount(t, wealthVar)-ra1) <= 10){
+          return t;
+          break;
+        }
+      }
+    }
+
+  }
   function getNewWealth(wealth, recaptured){
-    return wealth - recaptured*.5
+    return wealth - recaptured*.2
   }
 
   function getRate(bin){
@@ -397,7 +439,6 @@ var slider = g
   }
   var highestIndex = 0;
   function updateBar(bin, rate, threshold, passedIndex){
-    var duration = 800;
     if(passedIndex < highestIndex){
       return false;
     }
@@ -431,30 +472,30 @@ var slider = g
     if(getModel(passedIndex) == "modelOne"){
       d3.select(".state.bar.b" + bin)
         .transition("t-" + passedIndex)
-        .duration(duration)
+        .duration(DURATION)
         .attr("y", function(d) { return y(d[wealthVar]*rate + threshold - d[wealthVar]) })
         .attr("height", function(d){  return d3.max([0,barsHeight - y(threshold - d[wealthVar]) ]) });
       d3.select(".local.bar.b" + bin)
         .transition("t-" + passedIndex)
-        .duration(duration)
+        .duration(DURATION)
         .attr("y", function(d) { return y(d[wealthVar]*rate) })
         .attr("height", function(d){  return barsHeight - y(d[wealthVar]*rate) });
     }else{
       d3.select(".state.bar.b" + bin)
         .transition("t-" + passedIndex)
-        .duration(duration)
+        .duration(DURATION)
         .attr("y", function(d) { return y(d[wealthVar]*rate + rate*(threshold - d[wealthVar])) })
         .attr("height", function(d){ return d3.max([0,barsHeight - y(rate*(threshold - d[wealthVar])) ]) });
       d3.select(".local.bar.b" + bin)
         .transition("t-" + passedIndex)
-        .duration(duration)
+        .duration(DURATION)
         .attr("y", function(d) { return y(d[wealthVar]*rate) })
         .attr("height", function(d){  return barsHeight - y(d[wealthVar]*rate) });
     }
     if(passedIndex != 5 && passedIndex != 6 && passedIndex != 7){
        d3.selectAll(".cutoff.solid")
         .transition("t-" + passedIndex)
-        .duration(duration)
+        .duration(DURATION)
         .attr("x", function(d){ return x(d.bin)})
         .attr("width", x.bandwidth())
         .style("fill","#1696d2")
@@ -483,7 +524,7 @@ var slider = g
         return (d.wealth * rate > threshold)
       })
       .transition("t-" + passedIndex)
-      .duration(duration)
+      .duration(DURATION)
       .style("opacity", function(d){
         var rate = getRate(d.bin)
         if(d.wealth * rate > threshold){
@@ -499,7 +540,7 @@ var slider = g
         return (d.wealth * rate > threshold)
       })
       .transition("t-" + passedIndex)
-      .duration(duration)
+      .duration(DURATION)
       .style("opacity", function(d){
         var rate = getRate(d.bin)
         if(d.wealth * rate > threshold){
@@ -578,6 +619,9 @@ var slider = g
 
   }
   function baseModelTwo(barData){
+    d3.select(".recaptureContainer")
+      .transition()
+      .style("opacity",0)
     setThreshold(thresholdSmall)
     d3.selectAll(".dot")
       .each(function(d){
@@ -589,6 +633,7 @@ var slider = g
 
   function recaptureOne(barData){
     var threshold = thresholdSmall;
+    setThreshold(thresholdSmall)
     d3.selectAll(".cutoff")
       .classed("visible", function(d){
         var rate = getRate(d.bin)
@@ -610,15 +655,17 @@ var slider = g
 
   }
   function recaptureTwo(barData){
+
+
     var threshold = thresholdSmall;
-    var ra1 = RECAPTURE_AMOUNT
+    var ra1 = (RECAPTURE_AMOUNT == 0) ? 10400 : RECAPTURE_AMOUNT;
     var ra2 = 0;
     d3.selectAll(".dot")
       .each(function(d){
         var rate = getRate(d.bin)
         if(d.wealth * rate > threshold){
          var nw = getNewWealth(d.wealth*rate, d.wealth*rate - threshold)
-
+         ra2 += nw-threshold
           d3.select(".state.bar.b" + d.bin)
             .datum(function(d){
               d.recaptureTwo = nw/rate;
@@ -629,6 +676,23 @@ var slider = g
           updateBar(d.bin, rate, thresholdSmall,6)        
         }
       })
+      // console.log(ra1, ra2)
+      updateRecaptureAmount(ra1, ra2)
+      var newThreshold = getNewThreshold(ra1, ra2, threshold, "recaptureTwo")
+      d3.select(".threshold")
+        .transition()
+        .delay(700)
+        .duration(DURATION)
+        .attr("y1", y(newThreshold))
+        .attr("y2", y(newThreshold))
+        .on("end", function(){
+          d3.selectAll(".dot")
+            .each(function(d){
+              var rate = getRate(d.bin)
+              updateBar(d.bin, rate, newThreshold,6)
+              updateRecaptureAmount(ra2, ra1)     
+            })
+        })
 
   }
   function recaptureThree(barData){
