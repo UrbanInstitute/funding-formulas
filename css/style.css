@@ -173,8 +173,9 @@ p{
   stroke-width: 3px;
 }
 .recaptureContainer{
-  stroke: black;
-  stroke-width: 3px;
+  stroke: #fdd870;
+  fill: #fdd870;
+  stroke-width: 4px;
 }
 
 
