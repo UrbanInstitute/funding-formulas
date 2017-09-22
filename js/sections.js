@@ -7,9 +7,12 @@
 var scrollVis = function () {
   // constants to define the size
   // and margins of the vis area.
-  var width;
-  var height;
+  var width,
+      height,
+      barsHeight
 
+  var SMALL_RADIUS = (IS_PHONE()) ? 3 : 5;
+  var LARGE_RADIUS = (IS_PHONE()) ? 3 : 10;
 
   if ( IS_PHONE() ){ width = PHONE_VIS_WIDTH }
   else if ( IS_SHORT() ){ width = SHORT_VIS_WIDTH }
@@ -19,9 +22,14 @@ var scrollVis = function () {
   else if ( IS_SHORT() ){ height = SHORT_VIS_HEIGHT }
   else{ height = VIS_HEIGHT} 
 
-  var barsHeight = height*.65;
+  if ( IS_PHONE() ){ barsHeight = height*.5 }
+  else if ( IS_SHORT() ){ barsHeight = height*.65 }
+  else{ barsHeight = height*.65} 
 
-  margin = ( IS_PHONE() ) ? PHONE_MARGIN : MARGIN;
+  // var barsHeight = ( IS_PHONE() ) ? height*.5 : height*.65;
+
+  var margin = ( IS_PHONE() ) ? PHONE_MARGIN : MARGIN;
+  var dotMargin = (IS_PHONE() ) ? PHONE_DOT_MARGIN : DOT_MARGIN;
 
   // Keep track of which visualization
   // we are on and which was the last
@@ -40,7 +48,8 @@ var scrollVis = function () {
   // for displaying visualizations
   var g = null;
 
-  var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+  var barPadding = (IS_PHONE()) ? .4 : .1
+  var x = d3.scaleBand().rangeRound([0, width]).padding(barPadding),
   y = d3.scaleLinear().rangeRound([barsHeight, 0]);
 
   y.domain([0, 16000]);
@@ -211,7 +220,7 @@ var scrollVis = function () {
       .attr("class", function(d){ return "tax dot b" + d.bin})
         .attr("cx", function(d) { return x(d.bin) + x.bandwidth()*.5; })
         .attr("cy", function(d) { return dotY(1); })
-        .attr("r", 5)
+        .attr("r", SMALL_RADIUS)
         .call(d3.drag()
           .on("start.interrupt", function() { slider.interrupt(); })
           .on("start drag", function(d) {
@@ -236,12 +245,55 @@ var scrollVis = function () {
     d3.select("#resetDots")
       .on("click", function(){
         d3.selectAll(".dot")
-        .transition()
-        .attr("cy", dotY(1))
-        .on("end", function(d){
-          updateBar("user", d.bin, 1)
-          setRecaptureAmount();
-        })
+          .transition()
+            .attr("cy", dotY(1))
+            .on("end", function(d){
+              updateBar("user", d.bin, 1)
+              setRecaptureAmount();
+            })
+      })
+      // <div class = "mobileButton random">Random</div>
+      // <div class = "mobileButton low">Low</div>
+      // <div class = "mobileButton one">1.0%</div>
+      // <div class = "mobileButton high">High</div>
+
+  function randBetween(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+    d3.selectAll(".mobileButton")
+      .on("click", function(){
+        d3.selectAll(".mobileButton").classed("active", false)
+        d3.select(this).classed("active", true)
+        var button = d3.select(this);
+        d3.selectAll(".dot")
+          .each(function(d,i){
+            var val;
+            if(button.classed("one")){
+              val = 1;
+            }
+            else if(button.classed("low")){
+              val = randBetween(dotMin, 1)
+            }
+            else if(button.classed("high")){
+              val = randBetween(1, dotMax) 
+            }else{
+              val = randBetween(dotMin,dotMax)
+            }
+            d3.select(this)
+              .transition()
+              .attr("cy", dotY(val))
+              .on("end", function(d){
+                updateBar("user", d.bin, val)
+                setRecaptureAmount();
+              })
+
+          })
+          // .transition()
+          // .attr("cy", dotY(1))
+          // .on("end", function(d){
+          //   updateBar("user", d.bin, 1)
+          //   setRecaptureAmount();
+          // })
       })
 
     d3.selectAll(".axis.y .tick line")
@@ -655,7 +707,7 @@ var scrollVis = function () {
   function noiseModelOne(barData){
     d3.selectAll(".dot")
       .transition()
-        .attr("r", 5)
+        .attr("r", SMALL_RADIUS)
         .attr("cy", dotY(dotMax))
         .on("end", function(d){
           updateBar("animate", d.bin, dotMax,thresholdLarge,2)
@@ -672,14 +724,16 @@ var scrollVis = function () {
     setThreshold(thresholdLarge)
     d3.selectAll(".dot")
       .transition()
-        .attr("r", 10)
+        .attr("r", LARGE_RADIUS)
         .on("end", function(d){
           updateBar("animate", d.bin, dotY.invert(d3.select(this).attr("cy")), thresholdLarge,3)
         })
-    d3.selectAll(".track")
-      .transition()
-        .style("opacity",1)
-        .attr("y2", dotY(dotMin))
+    if(!IS_PHONE()){
+      d3.selectAll(".track")
+        .transition()
+          .style("opacity",1)
+          .attr("y2", dotY(dotMin))
+    }
   }
 
   function baseModelTwo(barData){
@@ -795,7 +849,7 @@ var scrollVis = function () {
         .duration(500)
         .delay(i*20)
           .attr("cy", dotY(1))
-          .attr("r", 10)
+          .attr("r", LARGE_RADIUS)
           .on("end", function(d){
             var rate = getRate(d.bin)
             updateBar("animate", d.bin, rate, thresholdLarge,8)

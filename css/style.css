@@ -125,6 +125,37 @@ p{
 }
 
 
+/******************* BUTTONS **************************/
+#mobileButtonContainer{
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+}
+.mobileButton{
+  width: 85px;
+  margin-right: 4px;
+  margin-bottom: 7px;
+  height: 10px;
+  padding-top: 13px;
+  padding-bottom: 26px;
+  color: #5c5859;
+  background-color: #d2d2d2;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+}
+.mobileButton.active{
+  background-color: #af206c;
+  color: #ffffff;
+}
+
+/******************* END BUTTONS **************************/
+
+
+
+
 /******************* CHART COMPONENTS **************************/
 
 
@@ -221,13 +252,16 @@ p{
   right: 20px;
   font-weight: bold;
   cursor: pointer;
+  display: block;
 }
 
 
 
 
 
-
+#mobileButtonContainer{
+  /*display: none;*/
+}
 #isMobile, #isPhone, #isShort, #sectionIndex{
     display: none;
     pointer-events: none;
@@ -280,6 +314,12 @@ p{
 @media (max-height: 636px) , (max-width: 768px){
   #isPhone{
     display: block;
+  }
+  #mobileButtonContainer{
+    display: block;
+  }
+  #resetDots{
+    display: none;
   }
 }
 
