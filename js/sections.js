@@ -314,11 +314,15 @@ var scrollVis = function () {
   * user may be scrolling up or down).
   *
   */
-  function setThreshold(val){
+  function setThreshold(val, delay){
+    if(typeof(delay) == "undefined"){
+      delay = 0
+    }
     d3.select(".threshold")
       .datum({"threshold": val})
       .transition()
       .duration(DURATION)
+      .delay(delay)
       .attr("y1", y(val))
       .attr("y2", y(val))
   }
@@ -456,7 +460,7 @@ var scrollVis = function () {
   }
 
   var highestIndex = 0;
-  function updateBar(inputType, bin, rate, threshold, passedIndex){
+  function updateBar(inputType, bin, rate, threshold, passedIndex, delay){
     if(passedIndex < highestIndex){
       return false;
     }
@@ -465,6 +469,9 @@ var scrollVis = function () {
     }
     if(typeof(passedIndex) == "undefined"){
       passedIndex = activeIndex;
+    }
+    if(typeof(delay) == "undefined"){
+      delay = 0;
     }
 
     highestIndex = passedIndex
@@ -490,22 +497,26 @@ var scrollVis = function () {
       d3.select(".state.bar.b" + bin)
         .transition("t-" + passedIndex)
         .duration(DURATION)
+        .delay(delay)
           .attr("y", function(d) { return y(d[wealthVar]*rate + threshold - d[wealthVar]) })
           .attr("height", function(d){  return d3.max([0,barsHeight - y(threshold - d[wealthVar]) ]) });
       d3.select(".local.bar.b" + bin)
         .transition("t-" + passedIndex)
         .duration(DURATION)
+        .delay(delay)
           .attr("y", function(d) { return y(d[wealthVar]*rate) })
           .attr("height", function(d){  return barsHeight - y(d[wealthVar]*rate) });
     }else{
       d3.select(".state.bar.b" + bin)
         .transition("t-" + passedIndex)
         .duration(DURATION)
+        .delay(delay)
           .attr("y", function(d) { return y(d[wealthVar]*rate + rate*(threshold - d[wealthVar])) })
           .attr("height", function(d){ return d3.max([0,barsHeight - y(rate*(threshold - d[wealthVar])) ]) });
       d3.select(".local.bar.b" + bin)
       .transition("t-" + passedIndex)
       .duration(DURATION)
+      .delay(delay)
         .attr("y", function(d) { return y(d[wealthVar]*rate) })
         .attr("height", function(d){  return barsHeight - y(d[wealthVar]*rate) });
     }
@@ -513,6 +524,7 @@ var scrollVis = function () {
       d3.selectAll(".cutoff.solid")
         .transition("t-" + passedIndex)
         .duration(DURATION)
+        .delay(delay)
           .attr("x", function(d){ return x(d.bin)})
           .attr("width", x.bandwidth())
           .style("fill","#1696d2")
@@ -542,6 +554,7 @@ var scrollVis = function () {
         })
         .transition("t-" + passedIndex)
         .duration(DURATION)
+        .delay(delay)
           .style("opacity", function(d){
             var barRate = getRate(d.bin)
             if(d.wealth * barRate > threshold){
@@ -559,6 +572,7 @@ var scrollVis = function () {
       })
       .transition("t-" + passedIndex)
       .duration(DURATION)
+      .delay(delay)
         .style("opacity", function(d){
           var barRate = getRate(d.bin)
           if(d.wealth * barRate > threshold){
@@ -591,6 +605,8 @@ var scrollVis = function () {
       var ra2 = 0;
       d3.selectAll(".dot")
         .transition()
+        .duration(DURATION)
+        .delay(delay)
         .each(function(d){
             var barRate = (d.bin == bin) ? rate : getRate(d.bin)
             if(d[wealthVar] * barRate > threshold){
@@ -601,6 +617,8 @@ var scrollVis = function () {
       d3.select(".threshold")
         .datum({"threshold": newThreshold})
         .transition()
+        .duration(DURATION)
+        .delay(delay)
           .attr("y1", y(newThreshold))
           .attr("y2", y(newThreshold))
           .on("end", function(){
@@ -668,10 +686,14 @@ var scrollVis = function () {
     d3.select(".recaptureContainer")
       .transition()
         .style("opacity",0)
-    setThreshold(thresholdSmall)
+    setThreshold(thresholdSmall, 1200)
     d3.selectAll(".dot")
       .each(function(d){
-        updateBar("animate", d.bin, dotY.invert(d3.select(this).attr("cy")), thresholdSmall,4)        
+        updateBar("animate", d.bin, dotY.invert(d3.select(this).attr("cy")), thresholdLarge,4)        
+      })
+    d3.selectAll(".dot")
+      .each(function(d){
+        updateBar("animate", d.bin, dotY.invert(d3.select(this).attr("cy")), thresholdSmall,4, 1200)        
       })
   }
 
