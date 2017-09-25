@@ -51,6 +51,8 @@ var PHONE_MARGIN = { top: 60, left: 30, bottom: 30, right: 30 };
 var DOT_MARGIN = {top: 80, bottom: 0}
 var PHONE_DOT_MARGIN = {top: 60, bottom: 80}
 
+var ANIMATION_DELAY = true;
+
 var DOLLARS = d3.format("$,.0f")
 var RATIOS = d3.format(".2f")
 

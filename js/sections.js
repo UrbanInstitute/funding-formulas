@@ -418,11 +418,17 @@ var scrollVis = function () {
 
         d3.selectAll(".cutoff.solid.visible")
           .style("fill","#fdbf11")
-          .style("stroke","#fdd870")
+          .style("stroke","#fdbf11")
           .style("opacity",1)
           .transition("t-" + passedIndex)
           .duration(1200)
-          .delay(function(d,i){ return i *500})
+          .delay(function(d,i){
+              if(ANIMATION_DELAY){
+                return i *500  
+              }else{
+                return 0;
+              }
+            })
             .attr("y", y(15000))
             .attr("x", function(d, i){
               var rate = getRate(d.bin);
@@ -436,6 +442,9 @@ var scrollVis = function () {
               return barArea/H
             })
             .attr("height", H)
+            .on("end", function(d, i){
+              ANIMATION_DELAY = false;
+            })
       }
       return ra;
     }
@@ -476,13 +485,13 @@ var scrollVis = function () {
           return  heights[i] * (ra2/ra1)
         })
         .style("fill","#fdbf11")
-        .style("stroke","#fdd870")
-        .attr("x", function(d, i){
-          var rate = getRate(d.bin);
-          var barArea = (barsHeight - y((rate*d[wealthVar]-threshold))) * x.bandwidth()
-          startPos += barArea/H
-          return startPos-barArea/H
-        })
+        .style("stroke","#fdbf11")
+        // .attr("x", function(d, i){
+        //   var rate = getRate(d.bin);
+        //   var barArea = (barsHeight - y((rate*d[wealthVar]-threshold))) * x.bandwidth()
+        //   startPos += barArea/H
+        //   return startPos-barArea/H
+        // })
         // .attr("width", function(d,i){
         //   var rate = getRate(d.bin);
         //   var barArea = (barsHeight - y((rate*d[wealthVar]-threshold))) * x.bandwidth()
@@ -502,7 +511,6 @@ var scrollVis = function () {
     var data = d3.selectAll(".dot")
       .each(function(d){
         var rate = getRate(d.bin)
-        // console.log(rate)
         if(d[wealthVar]*rate > threshold){
           recaptureAmount += d[wealthVar]*rate - threshold;
         }
@@ -778,6 +786,7 @@ var scrollVis = function () {
   }
 
   function baseModelTwo(barData){
+    ANIMATION_DELAY = true;
     d3.select("g.slider").classed("disabled", false)
     d3.select(".recaptureContainer")
       .transition()
