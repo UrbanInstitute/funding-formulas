@@ -434,14 +434,19 @@ var scrollVis = function () {
               var rate = getRate(d.bin);
               var barArea = (barsHeight - y((rate*d[wealthVar]-threshold))) * x.bandwidth()
               startPos += barArea/H
+              d.x = startPos-barArea/H
               return startPos-barArea/H
             })
             .attr("width", function(d,i){
               var rate = getRate(d.bin);
               var barArea = (barsHeight - y((rate*d[wealthVar]-threshold))) * x.bandwidth()
+              d.width = barArea/H
               return barArea/H
             })
-            .attr("height", H)
+            .attr("height", function(d,i){
+              d.height = H;
+              return H
+            })
             .on("end", function(d, i){
               ANIMATION_DELAY = false;
             })
@@ -486,17 +491,12 @@ var scrollVis = function () {
         })
         .style("fill","#fdbf11")
         .style("stroke","#fdbf11")
-        // .attr("x", function(d, i){
-        //   var rate = getRate(d.bin);
-        //   var barArea = (barsHeight - y((rate*d[wealthVar]-threshold))) * x.bandwidth()
-        //   startPos += barArea/H
-        //   return startPos-barArea/H
-        // })
-        // .attr("width", function(d,i){
-        //   var rate = getRate(d.bin);
-        //   var barArea = (barsHeight - y((rate*d[wealthVar]-threshold))) * x.bandwidth()
-        //   return barArea/H
-        // })
+        .attr("x", function(d, i){
+          return d.x;
+        })
+        .attr("width", function(d,i){
+          return d.width;
+        })
         .attr("y", function(d,i){
           if(ra2 < ra1){
             return parseFloat(d3.select(this).attr("y")) +  ( parseFloat(d3.select(".recaptureContainer").attr("height")) - heights[i] * (ra2/ra1))  
@@ -728,6 +728,13 @@ var scrollVis = function () {
   */
   function localModelOne(barData) {
     d3.select("g.slider").classed("disabled", true)
+    d3.selectAll(".state.bar")
+      .transition("t-0")
+      .duration(DURATION)
+      .attr("height",0)
+      .attr("y", function(d,i){
+        return y(d.wealth)
+      })
   }
 
   function baseModelOne(barData){
@@ -765,6 +772,9 @@ var scrollVis = function () {
 
   function increaseModelOne(barData){
     d3.select("g.slider").classed("disabled", false)
+    d3.select(".recaptureContainer")
+      .transition()
+        .style("opacity",0)
     setThreshold(thresholdLarge)
     d3.selectAll(".dot")
       .transition()
@@ -803,6 +813,9 @@ var scrollVis = function () {
   }
 
   function recaptureOne(barData){
+    d3.select(".recaptureContainer")
+      .transition()
+        .style("opacity",1)
     d3.select("g.slider").classed("disabled", false)
     var threshold = thresholdSmall;
     setThreshold(thresholdSmall)
@@ -857,6 +870,9 @@ var scrollVis = function () {
 
   }
   function recaptureThree(barData){
+    d3.select(".recaptureContainer")
+      .transition()
+        .style("opacity",1)
     d3.select("g.slider").classed("disabled", false).classed("locked", false)
     d3.selectAll(".mobileButton").classed("disabled", false).classed("locked", false)
       .transition()
@@ -904,6 +920,9 @@ var scrollVis = function () {
   }
   function modelThree(barData){
     d3.select("g.slider").classed("disabled", false)
+    d3.select(".recaptureContainer")
+      .transition()
+        .style("opacity",0)
     setThreshold(thresholdLarge)
     d3.selectAll(".dot")
       .each(function(d,i){
