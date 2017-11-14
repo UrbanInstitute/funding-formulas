@@ -56,8 +56,8 @@ var ANIMATION_DELAY = true;
 var DOLLARS = d3.format("$,.0f")
 var RATIOS = d3.format(".2f")
 
-var dotMin = .8;
-var dotMax = 1.2;
+var dotMin = 1;
+var dotMax = 1.4;
 
 var thresholdSmall = 6000;
 var thresholdLarge = 10000;
