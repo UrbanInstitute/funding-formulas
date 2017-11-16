@@ -105,7 +105,7 @@ function scroller() {
   function fixVis(){
     if(! IS_MOBILE()){
       if(d3.select(".step").node().getBoundingClientRect().top <= 64){
-        var bump = (IS_SHORT()) ? -120: -30;
+        var bump = (IS_SHORT()) ? -120: 150;
         if(d3.selectAll(".step").nodes()[d3.selectAll(".step").nodes().length-1].getBoundingClientRect().bottom <= VIS_WIDTH+MARGIN.top+MARGIN.bottom+20+bump){
           d3.select("#vis")
             .classed("posRelBottomSingleCol", false)
@@ -140,7 +140,7 @@ function scroller() {
             .style("z-index",90)
       }    
     }else{
-      if(d3.select(".lastStep").node().getBoundingClientRect().bottom <= 24){
+      if(d3.select(".lastStep").node().getBoundingClientRect().bottom <= 124){
 
           d3.select("#vis")
             .classed("posRelBottomSingleCol", true)
@@ -148,7 +148,7 @@ function scroller() {
             .classed("posRelTop", false)
             .classed("posFixed", false)
             .style("top", function(){
-              return (d3.select(".headerimage").node().getBoundingClientRect().height + d3.select(".container").node().getBoundingClientRect().height - VIS_HEIGHT - MARGIN.top - MARGIN.bottom + 165) + "px"
+              return (d3.select(".headerimage").node().getBoundingClientRect().height + d3.select(".container").node().getBoundingClientRect().height - VIS_HEIGHT - MARGIN.top - MARGIN.bottom + 5) + "px"
             })  
           d3.select("#sections")
             .style("z-index",-1)

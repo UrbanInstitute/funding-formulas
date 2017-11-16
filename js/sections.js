@@ -9,7 +9,9 @@ var scrollVis = function () {
   // and margins of the vis area.
   var width,
       height,
-      barsHeight
+      barsHeight,
+      recaptureContainerX,
+      recaptureContainerY;
 
   var SMALL_RADIUS = (IS_PHONE()) ? 3 : 5;
   var LARGE_RADIUS = (IS_PHONE()) ? 3 : 10;
@@ -24,7 +26,10 @@ var scrollVis = function () {
 
   if ( IS_PHONE() ){ barsHeight = height*.5 }
   else if ( IS_SHORT() ){ barsHeight = height*.65 }
-  else{ barsHeight = height*.65} 
+  else{ barsHeight = height*.65}
+
+  if(IS_PHONE()){ recaptureContainerX = 3; recaptureContainerY = 15000;}
+  else{ recaptureContainerX = 9; recaptureContainerY = 16300;}
 
   // var barsHeight = ( IS_PHONE() ) ? height*.5 : height*.65;
 
@@ -115,9 +120,18 @@ var scrollVis = function () {
 
     x.domain(barData.map(function(d) { return d.bin; }));
 
+    var formatter = (IS_PHONE()) ? "$.0s" : "$,.0f"
+    var dx = (IS_PHONE()) ? "-37px" : "-54px"
     g.append("g")
       .attr("class", "axis y")
-      .call(d3.axisLeft(y).ticks(10, "$,.0f"))
+      .call(d3.axisLeft(y).ticks(10, formatter))
+      .append("text")
+        .attr("class", "axisLabel")
+        .attr("y", 6)
+        .attr("dy", "-24px")
+        .attr("dx", dx)
+        .style("text-anchor", "start")
+        .text("Funding per student");
 
     g.selectAll(".local.bar")
       .data(barData)
@@ -129,12 +143,90 @@ var scrollVis = function () {
         .attr("height", function(d) { return barsHeight - y(d.wealth); });
 
     g.append("rect")
-      .attr("class", "recaptureContainer")
-      .attr("y", y(15000))
-      .attr("x", x(3))
+      .attr("class", "recaptureContainer recaptureContainerComponents")
+      .attr("y", y(recaptureContainerY))
+      .attr("x", x(recaptureContainerX))
       .attr("width", 0)
       .attr("height", 0)
       .style("opacity",0)
+
+    g.append("rect")
+      .attr("class", "recaptureContainerInner recaptureContainerComponents")
+      .attr("y", y(recaptureContainerY))
+      .attr("x", x(recaptureContainerX))
+      .style("fill", "#fdbf11")
+      .attr("width", 0)
+      .attr("height", 0)
+      .style("opacity",0)
+
+    g.append("text")
+      .attr("class", "recaptureTitle recaptureContainerComponents axisLabel")
+      .attr("y", y(recaptureContainerY) - 10)
+      .attr("x", x(recaptureContainerX) - 4)
+      .text("Recaptured amount")
+      .style("opacity",0)
+
+    if(IS_PHONE()){
+      g.append("rect")
+        .attr("class", "legendItem local")
+        .attr("width", 10)
+        .attr("height", 10)
+        .attr("x", -35)
+        .attr("y", -50)
+
+      g.append("text")
+        .attr("class", "legendText local")
+        .attr("x", -15)
+        .attr("y", -41)
+        .text("Local contribution")
+
+      g.append("rect")
+        .attr("class", "legendItem state legendState")
+        .attr("width", 10)
+        .attr("height", 10)
+        .attr("x", 97)
+        .attr("y", -50)
+        .text("Local")
+        .style("opacity",0)
+
+      g.append("text")
+        .attr("class", "legendText state legendState")
+        .attr("x", 115)
+        .attr("y", -41)
+        .text("Local")
+        .style("opacity",0)
+        .text("State contribution")
+
+    }else{
+      g.append("rect")
+        .attr("class", "legendItem local")
+        .attr("width", 20)
+        .attr("height", 20)
+        .attr("x", x(2))
+        .attr("y", y(17000))
+
+      g.append("text")
+        .attr("class", "legendText local")
+        .attr("x", x(2) + 30)
+        .attr("y", y(17000) + 15)
+        .text("Local contribution")
+
+      g.append("rect")
+        .attr("class", "legendItem state legendState")
+        .attr("width", 20)
+        .attr("height", 20)
+        .attr("x", x(2))
+        .attr("y", y(15700))
+        .style("opacity",0)
+
+      g.append("text")
+        .attr("class", "legendText state legendState")
+        .attr("x", x(2) + 30)
+        .attr("y", y(15700) + 15)
+        .style("opacity",0)
+        .text("State contribution")
+
+    }
 
     g.selectAll(".state.bar")
       .data(barData)
@@ -179,7 +271,14 @@ var scrollVis = function () {
 
     g.append("g")
       .attr("class", "axis dotAxis")
-      .call(d3.axisLeft(dotY).tickValues([dotMin,1.2,dotMax]))
+      .call(d3.axisLeft(dotY).tickValues([dotMin,1.2,dotMax]).tickFormat(function(d) { return d + "%"; }))
+      .append("text")
+        .attr("class", "axisLabel")
+        .attr("y", dotY(dotMax))
+        .attr("dy", "-24px")
+        .attr("dx", "-34px")
+        .style("text-anchor", "start")
+        .text("Property tax rate");
 
     var slider = g
       .append("g")
@@ -271,7 +370,7 @@ var scrollVis = function () {
               .transition()
               .attr("cy", dotY(val))
               .on("end", function(d){
-                updateBar("user", d.bin, val)
+                updateBar("button", d.bin, val)
                 setRecaptureAmount(activeIndex);
               })
 
@@ -371,6 +470,8 @@ var scrollVis = function () {
   function getThreshold(){
     return y.invert(d3.select(".threshold").attr("y1"))
   }
+  var GLOBAL_W =0;
+  var GLOBAL_H = 0;
   function setRecaptureAmount(passedIndex){
     for(var i = 0; i < passedIndex; i++){
       d3.select("svg").selectAll("*")
@@ -406,32 +507,48 @@ var scrollVis = function () {
 
       var W = Math.sqrt(area/6.0)*(3.0)
       var H = Math.sqrt(area/6.0)*(2.0)
+      GLOBAL_W = W;
+      GLOBAL_H = H;
 
+      d3.select(".recaptureTitle")
+        .transition("t-" + passedIndex)
+        .duration(1200)
+          .style("opacity",1)
       d3.select(".recaptureContainer")
         .transition("t-" + passedIndex)
         .duration(1200)
           .style("opacity",1)
           .attr("width", W)
           .attr("height", H)
+      d3.select(".recaptureContainerInner")
+        .transition("t-" + passedIndex)
+        .style("opacity",1)
+        .delay(500)
+        .duration(1200)
+
+          .attr("y", y(recaptureContainerY))          
+          .attr("width", W)
+          .attr("height", H)
 
       if(activeIndex == 7){
         var cutoffs = d3.selectAll(".cutoff.solid.visible").nodes().length
-        var startPos = x(3)
+        var startPos = x(recaptureContainerX)
 
         d3.selectAll(".cutoff.solid.visible")
           .style("fill","#fdbf11")
           .style("stroke","#fdbf11")
           .style("opacity",1)
+          .attr("data-y", y(recaptureContainerY))
           .transition("t-" + passedIndex)
           .duration(1200)
           .delay(function(d,i){
               if(ANIMATION_DELAY){
-                return i *500  
+                return 500  
               }else{
                 return 0;
               }
             })
-            .attr("y", y(15000))
+            .attr("y", y(recaptureContainerY))
             .attr("x", function(d, i){
               var rate = getRate(d.bin);
               var barArea = (barsHeight - y((rate*d[wealthVar]-threshold))) * x.bandwidth()
@@ -450,6 +567,8 @@ var scrollVis = function () {
               return H
             })
             .on("end", function(d, i){
+              d3.select(this)
+                .style("opacity",0)
               ANIMATION_DELAY = false;
             })
       }
@@ -458,54 +577,77 @@ var scrollVis = function () {
   }
 
   function updateRecaptureAmount(ra1, ra2, passedIndex){
-    var wealthVar
-    if(passedIndex == 7){
-      wealthVar = "recaptureTwo"
-    }
-    else if(passedIndex == 8){
-      wealthVar = "recaptureThree"
-    }else{
-      wealthVar = "wealth"
-    }
-    var threshold = d3.select(".threshold").datum().threshold
-    var startPos = x(3)
 
-    for(var i = 0; i < passedIndex; i++){
-      d3.select("svg").selectAll("*")
-        .interrupt("t-" + i)
-    }
-    var heights = []
-    d3.selectAll(".cutoff.solid.visible")
-      .each(function(d,i){
-        heights.push(parseFloat(d3.select(this).attr("height")))
-      })
 
-    var area = (barsHeight- y(ra1)) * x.bandwidth()
+      var ra = 0;
+      var threshold = thresholdSmall;
 
-    var W = Math.sqrt(area/6.0)*(3.0)
-    var H = Math.sqrt(area/6.0)*(2.0)
-
-    d3.selectAll(".cutoff.solid.visible")
-      .transition("t-" + passedIndex)
-      .duration(DURATION)
-        .attr("height", function(d,i){
-          return  heights[i] * (ra2/ra1)
-        })
-        .style("fill","#fdbf11")
-        .style("stroke","#fdbf11")
-        .attr("x", function(d, i){
-          return d.x;
-        })
-        .attr("width", function(d,i){
-          return d.width;
-        })
-        .attr("y", function(d,i){
-          if(ra2 < ra1){
-            return parseFloat(d3.select(this).attr("y")) +  ( parseFloat(d3.select(".recaptureContainer").attr("height")) - heights[i] * (ra2/ra1))  
-          }else{
-            return d3.select(".recaptureContainer").attr("y")
+      d3.selectAll(".dot")
+        .each(function(d){
+          var rate = getRate(d.bin);
+          if(rate * d.wealth > threshold){
+            ra += rate*d.wealth - threshold
           }
         })
+
+      RECAPTURE_AMOUNT = ra;
+
+      var area = (barsHeight- y(ra)) * x.bandwidth()
+
+      var W = (GLOBAL_W == 0) ? Math.sqrt(area/6.0)*(3.0) : GLOBAL_W;
+      var H = (GLOBAL_H == 0) ? Math.sqrt(area/6.0)*(2.0) : GLOBAL_H;
+
+
+      d3.select(".recaptureContainer")
+        .transition("t-" + passedIndex)
+        .duration(1200)
+          .style("opacity",1)
+          .attr("width", W)
+          .attr("height", H)
+
+
+    d3.selectAll(".cutoff.solid.visible")
+      .transition()
+      .style("opacity",0)
+
+
+    var ratio = (ra2 > ra1) ? 1 : ra2/ra1;
+
+    d3.select(".recaptureContainerInner")
+      .transition()
+      .style("opacity",1)
+      .duration(DURATION)
+      .attr("height", H*(ratio))
+      .attr("width",W)
+      .attr("y", parseFloat(d3.select(".recaptureContainer").attr("y")) + H*(1-ratio))
+    // d3.selectAll(".cutoff.solid.visible")
+    //   .attr("data-y", function(d,i){
+    //     if(ra2 < ra1){
+    //       return parseFloat(d3.select(this).attr("y")) +  ( parseFloat(d3.select(".recaptureContainer").attr("height")) - heights[i] * (ra2/ra1))  
+    //     }else{
+    //       return d3.select(".recaptureContainer").attr("y")
+    //     }
+    //   })
+    //   .transition("t-" + passedIndex)
+    //   .duration(DURATION)
+    //     .attr("height", function(d,i){
+    //       return  heights[i] * (ra2/ra1)
+    //     })
+    //     .style("fill","#fdbf11")
+    //     .style("stroke","#fdbf11")
+    //     .attr("x", function(d, i){
+    //       return d.x;
+    //     })
+    //     .attr("width", function(d,i){
+    //       return d.width;
+    //     })
+    //     .attr("y", function(d,i){
+    //       if(ra2 < ra1){
+    //         return parseFloat(d3.select(this).attr("data-y")) +  ( parseFloat(d3.select(".recaptureContainer").attr("height")) - heights[i] * (ra2/ra1))  
+    //       }else{
+    //         return d3.select(".recaptureContainer").attr("y")
+    //       }
+    //     })
   }
 
   function calcRecaptureAmount(threshold, wealthVar){
@@ -609,7 +751,7 @@ var scrollVis = function () {
         .attr("y", function(d) { return y(d[wealthVar]*rate) })
         .attr("height", function(d){  return barsHeight - y(d[wealthVar]*rate) });
     }
-    if(passedIndex != 7 && passedIndex != 8 && passedIndex != 9){
+    if(passedIndex != 7 && passedIndex != 8 && passedIndex != 9 ){
       d3.selectAll(".cutoff.solid")
         .transition("t-" + passedIndex)
         .duration(DURATION)
@@ -644,14 +786,7 @@ var scrollVis = function () {
         .transition("t-" + passedIndex)
         .duration(DURATION)
         .delay(delay)
-          .style("opacity", function(d){
-            var barRate = getRate(d.bin)
-            if(d.wealth * barRate > threshold){
-              return 1
-            }else{
-              return 0
-            }
-          })
+          .style("opacity", 0)
     }
 
     d3.selectAll(".cutoff:not(.solid)")
@@ -687,7 +822,10 @@ var scrollVis = function () {
           }
         })
 
-    if(inputType == "user" && (passedIndex == 8 || passedIndex == 9)){
+    if(inputType == "user"){
+      d3.selectAll(".mobileButton").classed("active", false)
+    }
+    if( (inputType == "user" || inputType == "button") && (passedIndex == 8 || passedIndex == 9)){
       var threshold = d3.select(".threshold").datum().threshold
 
       var ra1 = (RECAPTURE_AMOUNT == 0) ? 10400 : RECAPTURE_AMOUNT;
@@ -729,7 +867,16 @@ var scrollVis = function () {
   *
   */
   function localModelOne(barData) {
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",0)
+    d3.selectAll(".recaptureContainerComponents")
+      .transition()
+        .style("opacity",0)
     d3.select("g.slider").classed("disabled", true)
+
+    d3.selectAll(".mobileButton").classed("active", false)
+
     d3.selectAll(".state.bar")
       .transition("t-0")
       .duration(DURATION)
@@ -737,10 +884,22 @@ var scrollVis = function () {
       .attr("y", function(d,i){
         return y(d.wealth)
       })
+    d3.selectAll(".mobileButton")
+      .transition()
+      .style("opacity",0)
   }
 
   function baseModelOne(barData){
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",1)
+    d3.selectAll(".recaptureContainerComponents")
+      .transition()
+        .style("opacity",0)
     d3.select("g.slider").classed("disabled", true)
+
+    d3.selectAll(".mobileButton").classed("active", false)
+
     d3.selectAll(".dot")
       .transition()
         .attr("r", SMALL_RADIUS)
@@ -748,10 +907,24 @@ var scrollVis = function () {
         .on("end", function(d){
           updateBar("animate", d.bin, 1.0,thresholdLarge,1)
         })
+    d3.selectAll(".mobileButton")
+      .transition()
+      .style("opacity",0)
   }
 
   function noiseModelOne(barData){
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",1)
+    d3.selectAll(".recaptureContainerComponents")
+      .transition()
+        .style("opacity",0)
     d3.select("g.slider").classed("disabled", true)
+    
+    d3.selectAll(".mobileButton").classed("active", false)
+    d3.selectAll(".mobileButton.one2").classed("active", true)
+
+
     d3.selectAll(".dot")
       .transition()
         .attr("r", SMALL_RADIUS)
@@ -765,19 +938,21 @@ var scrollVis = function () {
       .style("opacity",0)
       .attr("y2", dotY(1.2))
     d3.selectAll(".mobileButton")
-      .classed("active", false)
-      .classed("disabled", true)
       .transition()
       .style("opacity",0)
 
   }
 
   function increaseModelOne(barData){
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",1)
     d3.select("g.slider").classed("disabled", false)
-    d3.select(".recaptureContainer")
+    d3.selectAll(".recaptureContainerComponents")
       .transition()
         .style("opacity",0)
     setThreshold(thresholdLarge)
+
     d3.selectAll(".dot")
       .transition()
         .attr("r", LARGE_RADIUS)
@@ -791,16 +966,20 @@ var scrollVis = function () {
           .attr("y2", dotY(dotMin))
     }
     d3.selectAll(".mobileButton")
-      .classed("active", false)
-      .classed("disabled", false)
       .transition()
       .style("opacity",1)
   }
 
   function lowerThresholdModelOne(barData){
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",1)
     ANIMATION_DELAY = true;
+    d3.selectAll(".dot")
+      .transition()
+        .attr("r", LARGE_RADIUS)
     d3.select("g.slider").classed("disabled", false)
-    d3.select(".recaptureContainer")
+    d3.selectAll(".recaptureContainerComponents")
       .transition()
         .style("opacity",0)
     setThreshold(thresholdSmall, 4)
@@ -811,6 +990,17 @@ var scrollVis = function () {
   }
 
   function baseModelTwo(barData){
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",1)
+    d3.selectAll(".recaptureContainerComponents")
+      .transition()
+        .style("opacity",0)
+
+    d3.selectAll(".mobileButton").classed("active", false);
+    d3.selectAll(".mobileButton.one").classed("active", true)
+    
+
     d3.selectAll(".dot")
       .transition()
         .attr("r", LARGE_RADIUS)
@@ -820,18 +1010,35 @@ var scrollVis = function () {
         })
   }
   function increaseModelTwo(barData){
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",1)
+    d3.selectAll(".recaptureContainerComponents")
+      .transition()
+        .style("opacity",0)
+
+    d3.selectAll(".mobileButton").classed("active", false)
+    d3.selectAll(".mobileButton.one2").classed("active", true)
+        
     d3.selectAll(".dot")
       .transition()
         .attr("cy", dotY(1.2))
+        .attr("r", LARGE_RADIUS)
         .on("end", function(d){
           updateBar("animate", d.bin, dotY.invert(d3.select(this).attr("cy")), thresholdSmall,6)        
         })
   }
 
   function recaptureOne(barData){
-    d3.select(".recaptureContainer")
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",1)
+    d3.selectAll(".recaptureContainerComponents")
       .transition()
         .style("opacity",1)
+    d3.selectAll(".dot")
+      .transition()
+        .attr("r", LARGE_RADIUS)
     d3.select("g.slider").classed("disabled", false)
     var threshold = thresholdSmall;
     setThreshold(thresholdSmall)
@@ -845,11 +1052,22 @@ var scrollVis = function () {
   }
 
   function recaptureTwo(barData){
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",1)
+    d3.selectAll(".recaptureContainerComponents")
+      .transition()
+        .style("opacity",1)
     d3.select("g.slider").classed("disabled", false).classed("locked", false)
+
     d3.selectAll(".mobileButton").classed("disabled", false).classed("locked", false)
+
     var threshold = thresholdSmall;
     var ra1 = (RECAPTURE_AMOUNT == 0) ? 10400 : RECAPTURE_AMOUNT;
     var ra2 = 0;
+    d3.selectAll(".dot")
+      .transition()
+        .attr("r", LARGE_RADIUS)
     d3.selectAll(".dot")
       .each(function(d){
         var rate = getRate(d.bin)
@@ -886,16 +1104,23 @@ var scrollVis = function () {
 
   }
   function recaptureThree(barData){
-    d3.select(".recaptureContainer")
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",1)
+    d3.selectAll(".recaptureContainerComponents")
       .transition()
         .style("opacity",1)
     d3.select("g.slider").classed("disabled", false).classed("locked", false)
+
     d3.selectAll(".mobileButton").classed("disabled", false).classed("locked", false)
       .transition()
         .style("opacity",1)
     var threshold = d3.select(".threshold").datum().threshold
     var ra1 = (RECAPTURE_AMOUNT == 0) ? 10400 : RECAPTURE_AMOUNT;
     var ra2 = 0;
+    d3.selectAll(".dot")
+      .transition()
+        .attr("r", LARGE_RADIUS)
     d3.selectAll(".dot")
       .each(function(d){
         d3.select(this)
@@ -935,11 +1160,20 @@ var scrollVis = function () {
         })
   }
   function modelThree(barData){
+    d3.selectAll(".legendState")
+      .transition()
+      .style("opacity",1)
+    d3.selectAll(".recaptureContainerComponents")
+      .transition()
+        .style("opacity",0)
     d3.select("g.slider").classed("disabled", false)
-    d3.select(".recaptureContainer")
+    d3.selectAll(".recaptureContainerComponents")
       .transition()
         .style("opacity",0)
     setThreshold(thresholdLarge)
+    d3.selectAll(".dot")
+      .transition()
+        .attr("r", LARGE_RADIUS)
     d3.selectAll(".dot")
       .each(function(d,i){
         d3.select(this)

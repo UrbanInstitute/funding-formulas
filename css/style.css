@@ -185,10 +185,14 @@ p{
   font-size: 12px;
   font-family: "Lato";
 }
-.local.bar{
+.local.bar, .local.legendItem{
   fill: #1696d2;
   stroke: #1696d2;
   stroke-width: 1px;
+}
+.legendText{
+  font-size: 15px;
+  font-family: Lato;
 }
 .state.bar{
   fill: #062635;
@@ -256,6 +260,12 @@ p{
   stroke: transparent;
   cursor: crosshair;
 }
+.axisLabel{
+    fill: black;
+    font-family: Lato;
+    font-size: 13px;
+    font-style: italic;
+}
 
 /******************* END CHART COMPONENTS **************************/
 
@@ -315,8 +325,11 @@ p{
   }
   #mobileButtonContainer{
     /*display: none;*/
-    bottom: 0px;
+    bottom: -10px;
     left: 0px;
+  }
+  .legendText{
+    font-size: 12px;
   }
   .mobileButton{
     margin-right: 4px;
@@ -362,6 +375,12 @@ p{
     box-shadow: rgb(136, 136, 136) 4px 4px 16px;
     padding: 30px;
     z-index: 2;
+  }
+  .lastStep{
+    opacity: 0 !important;
+  }
+  #bottomContent {
+      width: calc(100% - 80px);
   }
   .step.lastStep{
     margin-bottom: 0px;
