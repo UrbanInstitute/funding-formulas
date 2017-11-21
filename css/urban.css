@@ -332,10 +332,11 @@ h4 {
 
 #right {
 
-  float: right;
-  width: 45%;
+  margin: 0 auto;
+  width: 500px;
    padding-right: 0px;
   padding-left: 0px;
+  margin-top: 50px;
     font-size:14px;
     line-height: 1.3;
 }
