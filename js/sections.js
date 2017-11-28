@@ -29,7 +29,7 @@ var scrollVis = function () {
   else{ barsHeight = height*.65}
 
   if(IS_PHONE()){ recaptureContainerX = 3; recaptureContainerY = 15000;}
-  else{ recaptureContainerX = 9; recaptureContainerY = 16300;}
+  else{ recaptureContainerX = 11; recaptureContainerY = 16300;}
 
   // var barsHeight = ( IS_PHONE() ) ? height*.5 : height*.65;
 
@@ -167,6 +167,19 @@ var scrollVis = function () {
       .style("opacity",0)
 
     if(IS_PHONE()){
+      g.append("line")
+        .attr("class", "legendLine")
+        .attr("x1", -35)
+        .attr("x2", -35 + 25)
+        .attr("y1", -70)
+        .attr("y2", -70)
+
+      g.append("text")
+        .attr("class", "legendText line")
+        .attr("x", 0)
+        .attr("y", -65)
+        .text("Minimum funding per student")
+
       g.append("rect")
         .attr("class", "legendItem local")
         .attr("width", 10)
@@ -198,17 +211,31 @@ var scrollVis = function () {
         .text("State contribution")
 
     }else{
+      g.append("line")
+        .attr("class", "legendLine")
+        .attr("x1", x(2))
+        .attr("x2", x(2) + 25)
+        .attr("y1", y(17000) + 9)
+        .attr("y2", y(17000) + 9)
+
+      g.append("text")
+        .attr("class", "legendText line")
+        .attr("x", x(2) + 35)
+        .attr("y", y(17000) + 15)
+        .text("Minimum funding per student")
+
+      // minimum funding per student
       g.append("rect")
         .attr("class", "legendItem local")
         .attr("width", 20)
         .attr("height", 20)
         .attr("x", x(2))
-        .attr("y", y(17000))
+        .attr("y", y(15700))
 
       g.append("text")
         .attr("class", "legendText local")
-        .attr("x", x(2) + 30)
-        .attr("y", y(17000) + 15)
+        .attr("x", x(2) + 35)
+        .attr("y", y(15700) + 15)
         .text("Local contribution")
 
       g.append("rect")
@@ -216,13 +243,13 @@ var scrollVis = function () {
         .attr("width", 20)
         .attr("height", 20)
         .attr("x", x(2))
-        .attr("y", y(15700))
+        .attr("y", y(14400))
         .style("opacity",0)
 
       g.append("text")
         .attr("class", "legendText state legendState")
-        .attr("x", x(2) + 30)
-        .attr("y", y(15700) + 15)
+        .attr("x", x(2) + 35)
+        .attr("y", y(14400) + 15)
         .style("opacity",0)
         .text("State contribution")
 
@@ -670,14 +697,14 @@ var scrollVis = function () {
         ts.push(t)
       }
       r = d3.min(diffs, function(){ return })
-      var indexOfMaxValue = diffs.reduce((iMax, x, i, arr) => x < arr[iMax] ? i : iMax, 0);
+      var indexOfMaxValue = diffs.reduce(function(iMax, x, i, arr){ return x < arr[iMax] ? i : iMax}, 0);
       return ts[indexOfMaxValue]
     }else{
       for(var t = oldThreshold; t < 20000; t += 100){
         diffs.push(Math.abs(calcRecaptureAmount(t, wealthVar)-ra1))
         ts.push(t)
       }
-      var indexOfMaxValue = diffs.reduce((iMax, x, i, arr) => x < arr[iMax] ? i : iMax, 0);
+      var indexOfMaxValue = diffs.reduce(function(iMax, x, i, arr){ return x < arr[iMax] ? i : iMax}, 0);
       return ts[indexOfMaxValue]
     }
   }

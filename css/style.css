@@ -215,7 +215,7 @@ p{
   stroke-width: 2px;
   stroke-dasharray: 12,6;
 }
-.threshold{
+.threshold, .legendLine{
   stroke-dasharray: 5,5;
   stroke: #fdbf11;
   stroke-width: 3px;

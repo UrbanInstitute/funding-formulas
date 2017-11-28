@@ -180,7 +180,13 @@ border-right-color: #222;
 
 /********Title and intro of interactive**********/
 
-
+.pubDate{
+  font-size: 12px;
+  font-style: italic;
+  margin: 0 auto;
+  top: -10px;
+  position: relative;
+}
 h1{
     font-size: 30px;
     font-weight: 600;
@@ -364,6 +370,15 @@ h4 {
 .footerTopP{
   clear: both;
   padding-top: 14px;
+}
+#learnMore{
+    display: inline-block;
+    padding-bottom: 33px;
+    padding-top: 9px;
+}
+#learnMore a{
+  display: inline-block;
+  line-height: 20px;
 }
 
 footer p {

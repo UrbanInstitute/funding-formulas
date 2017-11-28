@@ -45,7 +45,7 @@ var DURATION = 800;
 
 
 var MARGIN = { top: 100, left: 120, bottom: 104, right: 20 };
-var PHONE_MARGIN = { top: 90, left: 40, bottom: 30, right: 30 };
+var PHONE_MARGIN = { top: 110, left: 40, bottom: 30, right: 30 };
 
 
 var DOT_MARGIN = {top: 80, bottom: 0}
