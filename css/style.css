@@ -207,7 +207,7 @@ p{
 .cutoff.solid{
   fill: #1696d2;
   stroke: #1696d2;
-  stroke-width: 2px;
+  stroke-width: 1px;
 }
 .cutoff.outline{
   fill: #ececec;

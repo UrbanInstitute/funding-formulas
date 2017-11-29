@@ -278,9 +278,9 @@ var scrollVis = function () {
       .data(barData)
       .enter().append("rect")
         .attr("class", function(d){ return "cutoff outline b" + d.bin})
-        .attr("x", function(d) { return x(d.bin); })
+        .attr("x", function(d) { return x(d.bin) + 1; })
         .attr("y", function(d) { return y(threshold); })
-        .attr("width", x.bandwidth())
+        .attr("width", x.bandwidth() - 2)
         .attr("height", 0)
         .style("opacity",0)
 
@@ -790,7 +790,7 @@ var scrollVis = function () {
           .attr("y", function(d){
             var barRate = getRate(d.bin)
             if(d[wealthVar] * barRate > threshold * barRate){
-              return y(d[wealthVar]*barRate)
+              return y(d[wealthVar]*barRate) - 2
             }else{
               return y(threshold)
             }
@@ -798,7 +798,7 @@ var scrollVis = function () {
           .attr("height", function(d){
             var barRate = getRate(d.bin)
             if(d[wealthVar] * barRate > threshold * barRate){
-              return barsHeight - y(d[wealthVar]*barRate - threshold *barRate)
+              return barsHeight - y(d[wealthVar]*barRate - threshold *barRate) + 4
             }else{
               return 0
             }
