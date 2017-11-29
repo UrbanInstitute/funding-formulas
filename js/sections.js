@@ -683,7 +683,7 @@ var scrollVis = function () {
       .each(function(d){
         var rate = getRate(d.bin)
         if(d[wealthVar]*rate > threshold){
-          recaptureAmount += d[wealthVar]*rate - threshold;
+          recaptureAmount += d[wealthVar]*rate - threshold * rate;
         }
       })
     return recaptureAmount;
@@ -789,7 +789,7 @@ var scrollVis = function () {
           .style("stroke","#1696d2")
           .attr("y", function(d){
             var barRate = getRate(d.bin)
-            if(d[wealthVar] * barRate > threshold){
+            if(d[wealthVar] * barRate > threshold * barRate){
               return y(d[wealthVar]*barRate)
             }else{
               return y(threshold)
@@ -797,8 +797,8 @@ var scrollVis = function () {
           })
           .attr("height", function(d){
             var barRate = getRate(d.bin)
-            if(d[wealthVar] * barRate > threshold){
-              return barsHeight - y(d[wealthVar]*barRate - threshold)
+            if(d[wealthVar] * barRate > threshold * barRate){
+              return barsHeight - y(d[wealthVar]*barRate - threshold *barRate)
             }else{
               return 0
             }
@@ -834,7 +834,7 @@ var scrollVis = function () {
         })
         .attr("y", function(d){
           var barRate = getRate(d.bin)
-          if(d[wealthVar] * barRate > threshold){
+          if(d[wealthVar] * barRate > threshold * barRate){
             return y(d[wealthVar]*barRate)
           }else{
             return y(threshold)
@@ -842,8 +842,8 @@ var scrollVis = function () {
         })
         .attr("height", function(d){
           var barRate = getRate(d.bin)
-          if(d[wealthVar] * barRate > threshold){
-            return d3.max([0,barsHeight - y((d[wealthVar]*barRate - threshold))])
+          if(d[wealthVar] * barRate > threshold * barRate){
+            return d3.max([0,barsHeight - y((d[wealthVar]*barRate - threshold * barRate))])
           }else{
             return 0
           }
