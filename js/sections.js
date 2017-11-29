@@ -1005,15 +1005,25 @@ var scrollVis = function () {
     d3.selectAll(".dot")
       .transition()
         .attr("r", LARGE_RADIUS)
+        .attr("cy", dotY(1.2))
+        .on("end", function(d){
+          updateBar("animate", d.bin, 1.2, thresholdSmall,4)        
+        })
+
     d3.select("g.slider").classed("disabled", false)
     d3.selectAll(".recaptureContainerComponents")
       .transition()
         .style("opacity",0)
     setThreshold(thresholdSmall, 4)
-    d3.selectAll(".dot")
-      .each(function(d){
-        updateBar("animate", d.bin, dotY.invert(d3.select(this).attr("cy")), thresholdSmall,4)        
-      })
+    // d3.selectAll(".dot")
+    //   .transition()
+    //     .attr("r", LARGE_RADIUS)
+    //     .attr("cy", dotY(1.2))
+    //     .on("end", function(d){
+    //       updateBar("animate", d.bin, 1.2, thresholdSmall,5)        
+    //     })
+
+
   }
 
   function baseModelTwo(barData){
